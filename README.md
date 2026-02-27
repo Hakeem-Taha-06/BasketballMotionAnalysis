@@ -40,6 +40,7 @@ All outputs are saved to the `results/` directory:
 python -m venv .venv_s2d
 ```
 2. Activate it
+
 Windows:
 ```bash
 .venv_s2d\Scripts\activate
