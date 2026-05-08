@@ -35,18 +35,23 @@ All outputs are saved to the `results/` directory:
 ## Setup
 
 **Python 3.12** is recommended (Sports2D works best with it).
-
+1. Create a virtual environment
 ```bash
-# 1. Create a virtual environment
 python -m venv .venv_s2d
+```
+2. Activate it
 
-# 2. Activate it
-# Windows:
+Windows:
+```bash
 .venv_s2d\Scripts\activate
-# macOS / Linux:
+```
+macOS / Linux:
+```bash
 source .venv_s2d/bin/activate
+```
 
-# 3. Install dependencies
+3. Install dependencies
+```bash
 pip install -r requirements.txt
 ```
 
