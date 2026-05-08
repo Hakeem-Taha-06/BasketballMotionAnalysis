@@ -1,0 +1,230 @@
+
+
+---------------------------------------------------------------------
+Processing free_throw.mp4
+On Monday 16. March 2026, 10:22:27
+---------------------------------------------------------------------
+
+Estimating pose...
+Using HALPE_26 model (body and feet) for pose estimation in balanced mode.
+
+No valid CUDA installation found: using OpenVINO backend with CPU.
+Persons detection is run every 4 frames (pose estimation is run at every frame). Tracking is done with sports2d.
+2 persons are analyzed. Person ordering method is greatest_displacement.
+keypoint_likelihood_threshold=0.3, average_likelihood_threshold=0.5, keypoint_number_threshold=0.3
+
+Processing video stream...
+Video processing completed.
+Less than the 2 required persons were detected. Analyzing all 1 persons.
+Reordered persons: IDs of persons [0] become [0].
+
+Post-processing pose:
+- Person 0: Interpolating missing sequences if they are smaller than 10 frames. Large gaps filled with last_value.
+Rejecting outliers with a Hampel filter.
+Filtering with Butterworth filter, 4th order, 6 Hz.
+Pose in pixels saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D_px_person00.trc.
+
+Converting pose to meters:
+Converting from pixels to meters using a person height of 1.75 in meters (manual input), and of 434.36 in pixels (calculated).
+Perspective effects corrected using a camera-to-person distance of 10.00 m (obtained from a manual input).
+Camera horizon: 26.77°, corrected using gait kinematics.
+Floor level: 1134.39 px (from the top of the image), gait starting at 0.00 px in the front direction for the first person. Corrected using gait kinematics.
+
+- Person 0: Seen from the front.
+Pose in meters saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D_m_person00.trc. 
+
+Post-processing angles (without inverse kinematics):
+- Person 0: Interpolating missing sequences if they are smaller than 10 frames. Large gaps filled with last_value.
+Rejecting outliers with a Hampel filter.
+Filtering with Butterworth filter, 4th order, 6 Hz.
+Correcting segment angles by removing the 26.77° floor angle.
+Angles saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D_angles_person00.mot.
+
+Saving images of processed pose and angles:
+Processed video saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D.mp4.
+
+Processing free_throw.mp4 took 16.91 s.
+
+
+---------------------------------------------------------------------
+Processing free_throw.mp4
+On Monday 16. March 2026, 10:24:10
+---------------------------------------------------------------------
+
+Estimating pose...
+Using HALPE_26 model (body and feet) for pose estimation in balanced mode.
+
+No valid CUDA installation found: using OpenVINO backend with CPU.
+Persons detection is run every 4 frames (pose estimation is run at every frame). Tracking is done with sports2d.
+2 persons are analyzed. Person ordering method is greatest_displacement.
+keypoint_likelihood_threshold=0.3, average_likelihood_threshold=0.5, keypoint_number_threshold=0.3
+
+Processing video stream...
+Video processing completed.
+Less than the 2 required persons were detected. Analyzing all 1 persons.
+Reordered persons: IDs of persons [0] become [0].
+
+Post-processing pose:
+- Person 0: Interpolating missing sequences if they are smaller than 10 frames. Large gaps filled with last_value.
+Rejecting outliers with a Hampel filter.
+Filtering with Butterworth filter, 4th order, 6 Hz.
+Pose in pixels saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D_px_person00.trc.
+
+Converting pose to meters:
+Converting from pixels to meters using a person height of 1.75 in meters (manual input), and of 434.36 in pixels (calculated).
+Perspective effects corrected using a camera-to-person distance of 10.00 m (obtained from a manual input).
+Camera horizon: 26.77°, corrected using gait kinematics.
+Floor level: 1134.39 px (from the top of the image), gait starting at 0.00 px in the front direction for the first person. Corrected using gait kinematics.
+
+- Person 0: Seen from the front.
+Pose in meters saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D_m_person00.trc. 
+
+Post-processing angles (without inverse kinematics):
+- Person 0: Interpolating missing sequences if they are smaller than 10 frames. Large gaps filled with last_value.
+Rejecting outliers with a Hampel filter.
+Filtering with Butterworth filter, 4th order, 6 Hz.
+Correcting segment angles by removing the 26.77° floor angle.
+Angles saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D_angles_person00.mot.
+
+Saving images of processed pose and angles:
+Processed video saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D.mp4.
+
+Processing free_throw.mp4 took 15.08 s.
+
+
+---------------------------------------------------------------------
+Processing free_throw.mp4
+On Monday 16. March 2026, 10:28:07
+---------------------------------------------------------------------
+
+Estimating pose...
+Using HALPE_26 model (body and feet) for pose estimation in balanced mode.
+
+No valid CUDA installation found: using OpenVINO backend with CPU.
+Persons detection is run every 4 frames (pose estimation is run at every frame). Tracking is done with sports2d.
+2 persons are analyzed. Person ordering method is greatest_displacement.
+keypoint_likelihood_threshold=0.3, average_likelihood_threshold=0.5, keypoint_number_threshold=0.3
+
+Processing video stream...
+Video processing completed.
+Less than the 2 required persons were detected. Analyzing all 1 persons.
+Reordered persons: IDs of persons [0] become [0].
+
+Post-processing pose:
+- Person 0: Interpolating missing sequences if they are smaller than 10 frames. Large gaps filled with last_value.
+Rejecting outliers with a Hampel filter.
+Filtering with Butterworth filter, 4th order, 6 Hz.
+Pose in pixels saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D_px_person00.trc.
+
+Converting pose to meters:
+Converting from pixels to meters using a person height of 1.75 in meters (manual input), and of 434.36 in pixels (calculated).
+Perspective effects corrected using a camera-to-person distance of 10.00 m (obtained from a manual input).
+Camera horizon: 26.77°, corrected using gait kinematics.
+Floor level: 1134.39 px (from the top of the image), gait starting at 0.00 px in the front direction for the first person. Corrected using gait kinematics.
+
+- Person 0: Seen from the front.
+Pose in meters saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D_m_person00.trc. 
+
+Post-processing angles (without inverse kinematics):
+- Person 0: Interpolating missing sequences if they are smaller than 10 frames. Large gaps filled with last_value.
+Rejecting outliers with a Hampel filter.
+Filtering with Butterworth filter, 4th order, 6 Hz.
+Correcting segment angles by removing the 26.77° floor angle.
+Angles saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D_angles_person00.mot.
+
+Saving images of processed pose and angles:
+Processed video saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D.mp4.
+
+Processing free_throw.mp4 took 14.85 s.
+
+
+---------------------------------------------------------------------
+Processing free_throw.mp4
+On Monday 16. March 2026, 12:04:17
+---------------------------------------------------------------------
+
+Estimating pose...
+Using HALPE_26 model (body and feet) for pose estimation in balanced mode.
+
+No valid CUDA installation found: using OpenVINO backend with CPU.
+Persons detection is run every 4 frames (pose estimation is run at every frame). Tracking is done with sports2d.
+2 persons are analyzed. Person ordering method is greatest_displacement.
+keypoint_likelihood_threshold=0.3, average_likelihood_threshold=0.5, keypoint_number_threshold=0.3
+
+Processing video stream...
+Video processing completed.
+Less than the 2 required persons were detected. Analyzing all 1 persons.
+Reordered persons: IDs of persons [0] become [0].
+
+Post-processing pose:
+- Person 0: Interpolating missing sequences if they are smaller than 10 frames. Large gaps filled with last_value.
+Rejecting outliers with a Hampel filter.
+Filtering with Butterworth filter, 4th order, 6 Hz.
+Pose in pixels saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D_px_person00.trc.
+
+Converting pose to meters:
+Converting from pixels to meters using a person height of 1.75 in meters (manual input), and of 434.36 in pixels (calculated).
+Perspective effects corrected using a camera-to-person distance of 10.00 m (obtained from a manual input).
+Camera horizon: 26.77°, corrected using gait kinematics.
+Floor level: 1134.39 px (from the top of the image), gait starting at 0.00 px in the front direction for the first person. Corrected using gait kinematics.
+
+- Person 0: Seen from the front.
+Pose in meters saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D_m_person00.trc. 
+
+Post-processing angles (without inverse kinematics):
+- Person 0: Interpolating missing sequences if they are smaller than 10 frames. Large gaps filled with last_value.
+Rejecting outliers with a Hampel filter.
+Filtering with Butterworth filter, 4th order, 6 Hz.
+Correcting segment angles by removing the 26.77° floor angle.
+Angles saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D_angles_person00.mot.
+
+Saving images of processed pose and angles:
+Processed video saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D.mp4.
+
+Processing free_throw.mp4 took 14.05 s.
+
+
+---------------------------------------------------------------------
+Processing free_throw.mp4
+On Monday 16. March 2026, 12:14:54
+---------------------------------------------------------------------
+
+Estimating pose...
+Using HALPE_26 model (body and feet) for pose estimation in balanced mode.
+
+No valid CUDA installation found: using OpenVINO backend with CPU.
+Persons detection is run every 4 frames (pose estimation is run at every frame). Tracking is done with sports2d.
+2 persons are analyzed. Person ordering method is greatest_displacement.
+keypoint_likelihood_threshold=0.3, average_likelihood_threshold=0.5, keypoint_number_threshold=0.3
+
+Processing video stream...
+Video processing completed.
+Less than the 2 required persons were detected. Analyzing all 1 persons.
+Reordered persons: IDs of persons [0] become [0].
+
+Post-processing pose:
+- Person 0: Interpolating missing sequences if they are smaller than 10 frames. Large gaps filled with last_value.
+Rejecting outliers with a Hampel filter.
+Filtering with Butterworth filter, 4th order, 6 Hz.
+Pose in pixels saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D_px_person00.trc.
+
+Converting pose to meters:
+Converting from pixels to meters using a person height of 1.75 in meters (manual input), and of 434.36 in pixels (calculated).
+Perspective effects corrected using a camera-to-person distance of 10.00 m (obtained from a manual input).
+Camera horizon: 26.77°, corrected using gait kinematics.
+Floor level: 1134.39 px (from the top of the image), gait starting at 0.00 px in the front direction for the first person. Corrected using gait kinematics.
+
+- Person 0: Seen from the front.
+Pose in meters saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D_m_person00.trc. 
+
+Post-processing angles (without inverse kinematics):
+- Person 0: Interpolating missing sequences if they are smaller than 10 frames. Large gaps filled with last_value.
+Rejecting outliers with a Hampel filter.
+Filtering with Butterworth filter, 4th order, 6 Hz.
+Correcting segment angles by removing the 26.77° floor angle.
+Angles saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D_angles_person00.mot.
+
+Saving images of processed pose and angles:
+Processed video saved to C:\Users\Hakeem\Desktop\Python Projects\BasketballMotionAnalysis\Sports2D_Results\free_throw_Sports2D\free_throw_Sports2D.mp4.
+
+Processing free_throw.mp4 took 14.51 s.

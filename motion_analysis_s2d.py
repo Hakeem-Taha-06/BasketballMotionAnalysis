@@ -44,6 +44,7 @@ from Sports2D import Sports2D
 
 # ── Configuration ──────────────────────────────────────────────────────────
 VIDEO_PATH   = "free_throw.mp4"
+BALL_CSV_PATH = "free_throw.csv"   # Kinovea ball trajectory (optional)
 RESULTS_DIR  = "results"
 OUTPUT_VIDEO = os.path.join(RESULTS_DIR, "output_annotated_s2d.mp4")
 PERSON_ID    = "person00"   # "person00", "person01", etc.
@@ -51,29 +52,45 @@ PERSON_ID    = "person00"   # "person00", "person01", etc.
 # Default player height for pixel → metre conversion
 DEFAULT_HEIGHT = 1.75  # metres — override via CLI arg
 
+# Ball speed cap for tracker (m/s) — reject unrealistic spikes
+BALL_SPEED_CAP = 25.0
+
+# Which side of the body to track: "RIGHT" or "LEFT"
+TRACKING_SIDE = "RIGHT"
+
+# ── Build marker / angle lookups from TRACKING_SIDE ────────────────────────
+_S   = TRACKING_SIDE.upper()          # "RIGHT" or "LEFT"
+_s   = TRACKING_SIDE.capitalize()     # "Right" or "Left"
+_sl  = TRACKING_SIDE.lower()          # "right" or "left"
+_pre = "R" if _S == "RIGHT" else "L"  # "R" or "L"
+
 # Landmarks of interest (Sports2D HALPE_26 marker names in the TRC file)
 TRC_MARKERS = {
-    "RIGHT_HIP":      "RHip",
-    "RIGHT_KNEE":     "RKnee",
-    "RIGHT_ANKLE":    "RAnkle",
-    "RIGHT_SHOULDER": "RShoulder",
-    "RIGHT_ELBOW":    "RElbow",
-    "RIGHT_WRIST":    "RWrist",
+    f"{_S}_HIP":      f"{_pre}Hip",
+    f"{_S}_KNEE":     f"{_pre}Knee",
+    f"{_S}_ANKLE":    f"{_pre}Ankle",
+    f"{_S}_SHOULDER": f"{_pre}Shoulder",
+    f"{_S}_ELBOW":    f"{_pre}Elbow",
+    f"{_S}_WRIST":    f"{_pre}Wrist",
 }
+
+# Convenience aliases used throughout the script
+WRIST_KEY    = f"{_S}_WRIST"
+SHOULDER_KEY = f"{_S}_SHOULDER"
 
 LANDMARK_NAMES = list(TRC_MARKERS.keys())
 
 # Angles of interest from the MOT file
 MOT_ANGLES = {
-    "knee":  "right knee",
-    "elbow": "right elbow",
+    "knee":  f"{_sl} knee",
+    "elbow": f"{_sl} elbow",
     "trunk": "trunk",
 }
 
 # Savitzky-Golay parameters (used for linear kinematics only —
 # Sports2D already filters the pose/angle data with Butterworth)
-SG_WINDOW = 11
-SG_POLY   = 3
+SG_WINDOW = 1
+SG_POLY   = 1
 
 # Pose connection pairs for manual skeleton drawing using HALPE_26 IDs
 POSE_CONNECTIONS = [
@@ -122,7 +139,7 @@ def run_sports2d(video_path: str, player_height: float, result_dir: str):
             "det_frequency": 4,
         },
         "angles": {
-            "joint_angles":   ["Right knee", "Right elbow"],
+            "joint_angles":   [f"{_s} knee", f"{_s} elbow"],
             "segment_angles": ["Trunk"],
             "display_angle_values_on": "none",
             "flip_left_right": False,
@@ -399,8 +416,8 @@ def print_summary(linear_kin: dict, angular_kin: dict) -> None:
     print(f"  {'Variable':<40s}  {'Min':>10s}  {'Max':>10s}  {'Mean':>10s}")
     print(sep)
 
-    wk = linear_kin["RIGHT_WRIST"]
-    print("  ── RIGHT WRIST (linear) ──")
+    wk = linear_kin[WRIST_KEY]
+    print(f"  ── {_S} WRIST (linear) ──")
     print(_row("Displacement magnitude (m)", wk["disp_mag"]))
     print(_row("Velocity magnitude (m/s)",   wk["vel_mag"]))
     print(_row("Acceleration magnitude (m/s²)", wk["acc_mag"]))
@@ -435,7 +452,7 @@ def plot_all(time: np.ndarray, linear_kin: dict, angular_kin: dict) -> None:
         plt.close(fig)
         print(f"  → saved {name}")
 
-    wk = linear_kin["RIGHT_WRIST"]
+    wk = linear_kin[WRIST_KEY]
 
     # 1. Wrist position (x, y) vs time
     fig, ax = plt.subplots()
@@ -580,7 +597,7 @@ def write_output_video(video_path: str, fps: float, width: int, height: int,
         cv2.addWeighted(overlay, 0.55, frame, 0.45, 0, frame)
 
         t_str = f"Time: {time_arr[i]:.2f} s"
-        v_str = f"Wrist vel: {linear_kin['RIGHT_WRIST']['vel_mag'][i]:.2f} m/s"
+        v_str = f"Wrist vel: {linear_kin[WRIST_KEY]['vel_mag'][i]:.2f} m/s"
         a_str = f"Elbow angle: {angular_kin['elbow']['angle'][i]:.1f} deg"
 
         font = cv2.FONT_HERSHEY_SIMPLEX
@@ -621,6 +638,75 @@ GRAVITY = 9.81  # m/s²
 MIN_LAUNCH_ANGLE_DEG = 35.0
 MAX_LAUNCH_ANGLE_DEG = 60.0
 OPTIMAL_WINDOW_THRESHOLD_PCT = 10.0  # % relative error for window
+
+
+# ── Ball trajectory loading (Kinovea CSV) ──────────────────────────────────
+
+def load_ball_trajectory(csv_path: str,
+                         markers_px: dict,
+                         all_markers_m: dict,
+                         time_arr: np.ndarray) -> dict | None:
+    """Load a Kinovea ball-tracking CSV and convert to metres.
+
+    Kinovea exports positions in pixel coordinates.  We convert to metres
+    using the same px_per_m ratio derived from the Sports2D TRC data
+    (pixel distance vs metre distance between RHip and RShoulder).
+
+    Returns dict with keys: time, pos, vel, speed, angle_deg
+    or None if loading fails.
+    """
+    if not os.path.isfile(csv_path):
+        print(f"[INFO] No ball trajectory CSV found at {csv_path} "
+              "-- using wrist velocity.")
+        return None
+
+    df = pd.read_csv(csv_path)
+    if len(df.columns) < 3:
+        print(f"[WARN] Ball CSV needs at least 3 columns (Time, X, Y). "
+              f"Got {len(df.columns)}.")
+        return None
+
+    ball_t = df.iloc[:, 0].values.astype(float)
+    ball_x = df.iloc[:, 1].values.astype(float)
+    ball_y = df.iloc[:, 2].values.astype(float)  # Y-up (Kinovea)
+
+    print(f"[INFO] Loaded ball trajectory: {len(ball_t)} points, "
+          f"t={ball_t[0]:.3f}-{ball_t[-1]:.3f} s")
+
+    # -- Compute px_per_m from TRC data --
+    m_a, m_b = "RHip", "RShoulder"
+    if m_a in markers_px and m_b in markers_px and \
+       m_a in all_markers_m and m_b in all_markers_m:
+        px_dist = np.linalg.norm(markers_px[m_a][0] - markers_px[m_b][0])
+        m_dist  = np.linalg.norm(all_markers_m[m_a][0] - all_markers_m[m_b][0])
+        px_per_m = px_dist / m_dist if m_dist > 0 else 250.0
+    else:
+        px_per_m = 250.0  # fallback
+
+    scale = 1.0 / px_per_m  # metres per pixel (Kinovea unit)
+    print(f"[INFO] px_per_m = {px_per_m:.2f}, "
+          f"scale = {scale:.6f} m/pixel")
+
+    # Convert to metres
+    pos_m = np.column_stack([ball_x * scale, ball_y * scale])
+
+    # -- Compute velocity via central differences --
+    dt_ball = np.diff(ball_t)
+    vel = np.zeros_like(pos_m)
+    vel[0]    = (pos_m[1]  - pos_m[0])  / dt_ball[0]
+    vel[-1]   = (pos_m[-1] - pos_m[-2]) / dt_ball[-1]
+    for k in range(1, len(ball_t) - 1):
+        vel[k] = (pos_m[k+1] - pos_m[k-1]) / (ball_t[k+1] - ball_t[k-1])
+
+    speed     = np.linalg.norm(vel, axis=1)
+    angle_deg = np.degrees(np.arctan2(vel[:, 1], np.abs(vel[:, 0])))
+
+    print(f"[INFO] Ball speed range: {speed.min():.2f} - {speed.max():.2f} m/s")
+    print(f"[INFO] Ball launch angle range: "
+          f"{angle_deg.min():.1f} - {angle_deg.max():.1f} deg")
+
+    return dict(time=ball_t, pos=pos_m, vel=vel,
+                speed=speed, angle_deg=angle_deg)
 
 
 def _click_handler(event, x, y, flags, param):
@@ -715,9 +801,9 @@ def find_candidate_frames(landmarks_m: dict, linear_kin: dict,
 
     Coordinates from Sports2D TRC are already Y-up natively in metres.
     """
-    hand = landmarks_m["RIGHT_WRIST"]         # (N, 2) in m, Y-up
-    shoulder = landmarks_m["RIGHT_SHOULDER"]
-    vel = linear_kin["RIGHT_WRIST"]["vel"]     # (N, 2) in m/s, Y-up
+    hand = landmarks_m[WRIST_KEY]              # (N, 2) in m, Y-up
+    shoulder = landmarks_m[SHOULDER_KEY]
+    vel = linear_kin[WRIST_KEY]["vel"]          # (N, 2) in m/s, Y-up
 
     hx, hy = hoop_pos  # physics coords, Y-up
 
@@ -780,7 +866,7 @@ def compute_required_speed(x0: float, y0: float,
                            theta_rad: float, g: float = GRAVITY) -> float:
     """Compute minimum launch speed for a projectile to reach the hoop.
 
-    Uses:  v² = g·Δx² / (2·cos²θ · (Δx·tanθ − Δy))
+    Uses:  v² = g·Δx² / (2·cos²θ · (Δx·tanθ - Δy))
 
     Returns v_required, or NaN if no valid trajectory exists.
     """
@@ -802,16 +888,20 @@ def compute_required_speed(x0: float, y0: float,
 
 def analyze_release_window(candidates: np.ndarray,
                            landmarks_m: dict, linear_kin: dict,
-                           hoop_pos: tuple, time_arr: np.ndarray) -> dict:
+                           hoop_pos: tuple, time_arr: np.ndarray,
+                           ball_data: dict = None) -> dict:
     """Compute optimality metrics for each candidate frame.
+
+    If ball_data is provided, uses the ball's actual speed and angle
+    instead of the wrist velocity for the comparison.
 
     Returns dict with arrays:
         frame_idx, time, actual_speed, required_speed, launch_angle_deg,
         speed_error, relative_error_pct, feasibility_ratio,
-        optimal_idx, optimal_window
+        optimal_idx, optimal_window, speed_source
     """
-    hand = landmarks_m["RIGHT_WRIST"]
-    vel  = linear_kin["RIGHT_WRIST"]["vel"]
+    hand = landmarks_m[WRIST_KEY]
+    vel  = linear_kin[WRIST_KEY]["vel"]
     hx, hy = hoop_pos
 
     frame_idx      = []
@@ -822,15 +912,41 @@ def analyze_release_window(candidates: np.ndarray,
     speed_errors   = []
     rel_errors     = []
     feas_ratios    = []
+    speed_sources  = []
+
+    using_ball = ball_data is not None
+    if using_ball:
+        print("[INFO] Using ball trajectory for actual speed/angle.")
+    else:
+        print("[INFO] Using wrist velocity for actual speed/angle.")
 
     for i in candidates:
-        # Coordinates are already physics Y-up
+        # Release position is always the wrist (ball is in hand)
         hand_x, hand_y = hand[i, 0], hand[i, 1]
-        vx, vy = vel[i, 0], vel[i, 1]
 
-        speed  = np.sqrt(vx**2 + vy**2)
-        angle  = np.arctan2(vy, abs(vx))
-        angle_d = np.degrees(angle)
+        # Get actual speed and angle — from ball or wrist
+        source = "wrist"
+        if using_ball:
+            t_frame = time_arr[i]
+            # Find closest ball data point
+            j_ball = int(np.argmin(np.abs(ball_data["time"] - t_frame)))
+            dt_match = abs(ball_data["time"][j_ball] - t_frame)
+            if dt_match < 0.05:  # within ~1.5 frames
+                speed   = ball_data["speed"][j_ball]
+                angle_d = ball_data["angle_deg"][j_ball]
+                angle   = np.radians(angle_d)
+                source  = "ball"
+            else:
+                # No close ball data — fall back to wrist
+                vx, vy  = vel[i, 0], vel[i, 1]
+                speed   = np.sqrt(vx**2 + vy**2)
+                angle   = np.arctan2(vy, abs(vx))
+                angle_d = np.degrees(angle)
+        else:
+            vx, vy  = vel[i, 0], vel[i, 1]
+            speed   = np.sqrt(vx**2 + vy**2)
+            angle   = np.arctan2(vy, abs(vx))
+            angle_d = np.degrees(angle)
 
         v_req = compute_required_speed(hand_x, hand_y, hx, hy, angle)
 
@@ -849,6 +965,7 @@ def analyze_release_window(candidates: np.ndarray,
         speed_errors.append(err)
         rel_errors.append(rel_err)
         feas_ratios.append(ratio)
+        speed_sources.append(source)
 
     frame_idx      = np.array(frame_idx)
     times          = np.array(times)
@@ -863,7 +980,6 @@ def analyze_release_window(candidates: np.ndarray,
     if len(rel_errors) > 0:
         opt_local = int(np.nanargmin(rel_errors))
         opt_frame = int(frame_idx[opt_local])
-        # Optimal window: frames within threshold
         window_mask = rel_errors <= OPTIMAL_WINDOW_THRESHOLD_PCT
         window_frames = frame_idx[window_mask]
     else:
@@ -877,9 +993,14 @@ def analyze_release_window(candidates: np.ndarray,
         speed_error=speed_errors, relative_error_pct=rel_errors,
         feasibility_ratio=feas_ratios,
         optimal_frame=opt_frame, optimal_window=window_frames,
+        speed_source=speed_sources,
     )
 
     print(f"[INFO] Valid projectile solutions: {len(frame_idx)}")
+    if using_ball:
+        n_ball = sum(1 for s in speed_sources if s == "ball")
+        print(f"[INFO] Speed source: {n_ball} frames from ball, "
+              f"{len(speed_sources)-n_ball} from wrist (fallback)")
     if opt_frame >= 0:
         print(f"[INFO] Optimal release frame: {opt_frame} "
               f"(t={time_arr[opt_frame]:.3f}s, "
@@ -1220,7 +1341,11 @@ def main():
     write_output_video(video_path, fps, width, height,
                        markers_px, linear_kin, angular_kin, time_arr)
 
-    # ── Step 9: Release window analysis ──
+    # ── Step 9: Load ball trajectory (if available) ──
+    ball_data = load_ball_trajectory(BALL_CSV_PATH, markers_px,
+                                     all_markers_m, time_arr)
+
+    # ── Step 10: Release window analysis ──
     hoop_pos, coord_cvt = select_hoop_position(video_path, markers_px,
                                                 all_markers_m)
     candidates = find_candidate_frames(landmarks, linear_kin,
@@ -1231,7 +1356,8 @@ def main():
                       hoop_pos, all_markers_m, markers_px)
 
     release_results = analyze_release_window(candidates, landmarks,
-                                             linear_kin, hoop_pos, time_arr)
+                                             linear_kin, hoop_pos, time_arr,
+                                             ball_data=ball_data)
     print_release_summary(release_results)
     plot_release_analysis(time_arr, release_results, linear_kin)
     save_release_csv(release_results)
